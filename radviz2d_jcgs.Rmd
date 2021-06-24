@@ -1,0 +1,134 @@
+---
+title: "RadViz2D"
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, error = FALSE)
+```
+
+```{r}
+library(MixSim)
+library(RColorBrewer)
+library(MASS)
+library(freqparcoord)
+library(expm)
+library(grDevices)
+library(radviz3d)
+library(rgl)
+
+source("modradviz2d-2.R")
+
+viz2d_3d <- function(x, angles =  2*pi*(0:(ncol(x)-1))/ncol(x)) {
+  y <- apply(X = x, MARGIN = 2, FUN = function(z)((z - min(z))/(max(z) - min(z))))
+  sy <- rowSums(y)/ncol(y)
+  y <- apply(X = y, MARGIN = 1, FUN = function(z)(z/sum(z)))
+  y <- t(y)
+  pr <- cbind(cos(angles), sin(angles))
+  xproj <- cbind(y %*% pr, sy)
+}
+
+# {viz3d} function based on Artero and Oliveira's paper.
+viz3d <- function(x, angles =  2*pi*(0:(ncol(x)-1))/ncol(x)) {
+  y <- apply(X = x, MARGIN = 2, FUN = function(z)((z - min(z))/(max(z) - min(z))))
+  #    x <- apply(X = y, MARGIN = 1, FUN = function(z)(z/sum(z)))
+  #    x <- t(x)
+  pr <- cbind(cos(angles), sin(angles), 1)
+  xproj <- y %*% pr / ncol(y)
+}
+
+```
+
+<table width="500" border="0" cellpadding="0">
+<tr>
+<td align="center" valign="center">
+```{r}
+load("sim_data.rda")
+sim.palette <- c("#1F78B4","#6A3D9A", "#33A02C","#E31A1C", "yellow")
+
+df <- sim_data[[1]]
+modradviz2d(x = df[,-1], cl = df$class, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = sim.palette, opt.axis.order = F)
+```
+<br />
+(i) RadViz2D, p = 4, omega = 0.001
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="center">
+```{r}
+df <- sim_data[[2]]
+modradviz2d(x = df[,-1], cl = df$class, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = sim.palette, opt.axis.order = F)
+```
+<br />
+(ii) RadViz2D, p = 4, omega = 0.01
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="center">
+```{r}
+df <- sim_data[[3]]
+modradviz2d(x = df[,-1], cl = df$class, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = sim.palette, opt.axis.order = F)
+```
+<br />
+(iii) RadViz2D, p = 4, omega = 0.05
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="center">
+```{r}
+load("sim_data_7.rda")
+df <- sim_data[[1]]
+modradviz2d(x = df[,-1], cl = df$class, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = sim.palette, opt.axis.order = F)
+```
+<br />
+(iv) RadViz2D, p = 7, omega = 0.001
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="center">
+```{r}
+df <- sim_data[[2]]
+modradviz2d(x = df[,-1], cl = df$class, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = sim.palette, opt.axis.order = F)
+```
+<br />
+(iv) RadViz2D, p = 7, omega = 0.01
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="center">
+```{r}
+df <- sim_data[[3]]
+modradviz2d(x = df[,-1], cl = df$class, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = sim.palette, opt.axis.order = F)
+```
+<br />
+(v) RadViz2D, p = 7, omega = 0.05
+</td>
+
+</tr>
+
+</table>
