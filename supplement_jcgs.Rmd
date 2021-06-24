@@ -1,0 +1,484 @@
+---
+title: "Visualizations"
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, error = FALSE, cache = T)
+```
+
+```{r}
+library(MixSim)
+library(RColorBrewer)
+library(MASS)
+library(freqparcoord)
+library(expm)
+library(grDevices)
+library(radviz3d)
+library(rgl)
+
+source("modradviz2d-2.R")
+
+viz2d_3d <- function(x, angles =  2*pi*(0:(ncol(x)-1))/ncol(x)) {
+  y <- apply(X = x, MARGIN = 2, FUN = function(z)((z - min(z))/(max(z) - min(z))))
+  sy <- rowSums(y)/ncol(y)
+  y <- apply(X = y, MARGIN = 1, FUN = function(z)(z/sum(z)))
+  y <- t(y)
+  pr <- cbind(cos(angles), sin(angles))
+  xproj <- cbind(y %*% pr, sy)
+}
+
+# {viz3d} function based on Artero and Oliveira's paper.
+viz3d <- function(x, angles =  2*pi*(0:(ncol(x)-1))/ncol(x)) {
+  y <- apply(X = x, MARGIN = 2, FUN = function(z)((z - min(z))/(max(z) - min(z))))
+  #    x <- apply(X = y, MARGIN = 1, FUN = function(z)(z/sum(z)))
+  #    x <- t(x)
+  pr <- cbind(cos(angles), sin(angles), 1)
+  xproj <- y %*% pr / ncol(y)
+}
+
+# color palette
+sim.palette = c("#1F78B4","#6A3D9A", "#33A02C","#E31A1C", "yellow")
+cb.palette = c("#A6CEE3", "#1F78B4", "#FDBF6F", "#FF7F00") 
+df.palette = c("#1B9E77", "#A6CEE3", "#E7298A", "#E6AB02", "#7570B3", "#D95F02", "#66A61E","#A6761D", "#666666")
+yt.palette = c(df.palette,"blue")
+oil.palette = c(brewer.pal(4,"Dark2"), brewer.pal(8,"Set2")[6:8], brewer.pal(8,"Greys")[c(5,8)])
+
+```
+
+We display visualizations using RadViz2D, RadViz3D, Viz3D for simulation datasets and real datasets.
+
+# Simulated Datasets
+
+## Fig. S1: RadViz2D, Viz3D and RadViz3D of 4D and 7D Simulation Datasets
+
+(a) [RadViz2D](radviz2d_jcgs.html)
+(b) [Viz3D](viz3d_jcgs.html)
+(c) [RadViz3D](radviz3d_jcgs.html)
+
+
+<!-- # ```{r} -->
+<!-- # res_radviz <- list() -->
+<!-- # set.seed(2015) -->
+<!-- # for (i in 1:length(omegas)){ -->
+<!-- #   sn.df <- sim_data[[i]] -->
+<!-- #   radialvis3d(data = sn.df[,-ncol(sn.df)], cl = as.factor(sn.df[,ncol(sn.df)]), domrp = T, doGtrans = T, lwd = 2, alpha = 0.35, pradius = 0.02, color = brewer.pal(5, "Paired"), message = F) -->
+<!-- #   # rgl::par3d(windowRect = c(0, 0, 1200, 1200)) -->
+<!-- #   # rgl::par3d(viewport = c(0,0,1200, 1200)) -->
+<!-- #   # legend3d("topright", legend = c("Normal", "ASD subject"), pch = 19, col = senator.palette, cex=0.8, inset=c(0.01)) -->
+<!-- #   rgl::rgl.viewpoint(zoom = 0.6) -->
+<!-- #   res_radviz[[i]] <- rgl::rglwidget() -->
+<!-- # } -->
+<!-- # ``` -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Real Datasets
+
+## Fig. S2: Gamma Ray Burst Dataset
+
+
+<table width="500" border="0" cellpadding="0">
+
+<tr>
+
+<td align="center" valign="center">
+```{r}
+load("GRB-5groups.rda")
+df = GRB
+modradviz2d(x = df[,-1], cl = df$class, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = df.palette, opt.axis.order = F)
+```
+<br />
+(a) RadViz2D
+</td>
+</tr>
+
+<tr>
+
+<td align="center" valign="center">
+```{r}
+res1 = viz2d_3d(df[,-1])
+res1 = data.frame(res1, as.factor(df$class))
+colnames(res1) = c("x","y","z","class")
+# open 3d window
+# resize window
+par3d(windowRect = c(100, 100, 612, 612))
+# plot
+with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
+                  col = df.palette[1:nlevels(class)][as.numeric(class)]))
+box3d()
+# add legend
+# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
+#          pch = 16, col = df.palette[1:nlevels(res1$class)],
+#          cex=1, inset=c(0.05))
+rglwidget()
+
+```
+<br />
+(b) Viz3D
+</td>
+
+<td align="center" valign="center">
+```{r}
+radialvis3d(data = df[,-1], cl = factor(df$class), domrp = F, doGtrans = F, lwd = 2, alpha = 0.35, pradius = 0.02, color = df.palette, class.labels = NULL)
+# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
+# rgl::par3d(viewport = c(0,0,1200, 1200))
+rgl::rgl.viewpoint(zoom = 0.6)
+rgl::rglwidget()
+```
+<br />
+(c) RadViz3D
+</td>
+</tr>
+</table>
+
+## Fig. S3: Wine Dataset
+```{r}
+wine = read.table(file = "wine.dat", sep=",",
+                  header=F, col.names = c("cultivar","Ahl","Malic","Ash", "Alk","Mgm",
+                                          "pnls","Flvds","Nonfp","Pthyns",
+                                          "Color","Hue","ODdil","Prol")) 
+df = wine
+```
+
+
+<table width="500" border="0" cellpadding="0">
+
+<tr>
+<td align="center" valign="center">
+```{r}
+modradviz2d(x = df[,-1], cl = df$cultivar, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = df.palette, opt.axis.order = F)
+```
+<br />
+RadViz2D
+</td>
+</tr>
+
+<tr>
+
+<td align="center" valign="center">
+```{r}
+res1 = viz2d_3d(df[,-1])
+res1 = data.frame(res1, as.factor(df$cultivar))
+colnames(res1) = c("x","y","z","class")
+# open 3d window
+# resize window
+par3d(windowRect = c(100, 100, 612, 612))
+# plot
+with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
+                  col = df.palette[1:nlevels(class)][as.numeric(class)]))
+box3d()
+# add legend
+# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
+#          pch = 16, col = df.palette[1:nlevels(res1$class)],
+#          cex=1, inset=c(0.05))
+rglwidget()
+
+```
+<br />
+Viz3D
+</td>
+
+<td align="center" valign="center">
+```{r}
+radialvis3d(data = df[,-1], cl = factor(df$cultivar), domrp = F, doGtrans = F, lwd = 2, alpha = 0.35, pradius = 0.02, color = df.palette, class.labels = NULL)
+# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
+# rgl::par3d(viewport = c(0,0,1200, 1200))
+rgl::rgl.viewpoint(zoom = 0.6)
+rgl::rglwidget()
+```
+<br />
+RadViz3D
+</td>
+</tr>
+</table>
+
+## Fig. S4: Crabs Dataset
+```{r}
+data("crabs")
+crabs$group = as.factor(crabs$sp:crabs$sex)
+df = crabs[-51,4:9]
+```
+
+
+<table width="500" border="0" cellpadding="0">
+
+<tr>
+<td align="center" valign="center">
+```{r}
+modradviz2d(x = df[,-6], cl = df$group, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = cb.palette, opt.axis.order = F)
+```
+<br />
+RadViz2D
+</td>
+</tr>
+
+<tr>
+
+<td align="center" valign="center">
+```{r}
+res1 = viz2d_3d(df[,-6])
+res1 = data.frame(res1, as.factor(df$group))
+colnames(res1) = c("x","y","z","class")
+# open 3d window
+# resize window
+par3d(windowRect = c(100, 100, 612, 612))
+# plot
+with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
+                  col = cb.palette[1:nlevels(class)][as.numeric(class)]))
+box3d()
+# add legend
+# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
+#          pch = 16, col = df.palette[1:nlevels(res1$class)],
+#          cex=1, inset=c(0.05))
+rglwidget()
+
+```
+<br />
+Viz3D
+</td>
+
+<td align="center" valign="center">
+```{r}
+radialvis3d(data = df[,-6], cl = factor(df$group), domrp = F, doGtrans = F, lwd = 2, alpha = 0.35, pradius = 0.02, color = cb.palette, class.labels = NULL)
+# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
+# rgl::par3d(viewport = c(0,0,1200, 1200))
+rgl::rgl.viewpoint(zoom = 0.6)
+rgl::rglwidget()
+```
+<br />
+RadViz3D
+</td>
+</tr>
+</table>
+
+## Fig. S5: Iris Dataset
+
+```{r}
+data("iris")
+df = iris
+```
+
+
+<table width="500" border="0" cellpadding="0">
+
+<tr>
+<td align="center" valign="center">
+```{r}
+modradviz2d(x = df[,-5], cl = df$Species, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = df.palette, opt.axis.order = F)
+```
+<br />
+RadViz2D
+</td>
+</tr>
+
+<tr>
+
+<td align="center" valign="center">
+```{r}
+res1 = viz2d_3d(df[,-5])
+res1 = data.frame(res1, as.factor(df$Species))
+colnames(res1) = c("x","y","z","class")
+# open 3d window
+# resize window
+par3d(windowRect = c(100, 100, 612, 612))
+# plot
+with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
+                  col = df.palette[1:nlevels(class)][as.numeric(class)]))
+box3d()
+# add legend
+# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
+#          pch = 16, col = df.palette[1:nlevels(res1$class)],
+#          cex=1, inset=c(0.05))
+rglwidget()
+
+```
+<br />
+Viz3D
+</td>
+
+<td align="center" valign="center">
+```{r}
+radialvis3d(data = df[,-5], cl = factor(df$Species), domrp = F, doGtrans = F, lwd = 2, alpha = 0.35, pradius = 0.02, color = df.palette, class.labels = NULL)
+# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
+# rgl::par3d(viewport = c(0,0,1200, 1200))
+rgl::rgl.viewpoint(zoom = 0.6)
+rgl::rglwidget()
+```
+<br />
+RadViz3D
+</td>
+</tr>
+</table>
+
+
+## Fig. S6: Olive Oils Dataset
+```{r}
+data("oliveoils")
+oliveoils = oliveoils[,-2]
+class = factor(oliveoils$Area)
+class = sub("North-Apulia","1-North-Apulia",class)
+class = sub("South-Apulia","2-South-Apulia",class)
+class = sub("Calabria","3-Calabria",class)
+class = sub("Sicily","4-Sicily",class)
+class = sub("Umbria","5-Umbria",class)
+class = sub("East-Liguria","6-East-Liguria",class)
+class = sub("West-Liguria","7-West-Liguria",class)
+class = sub("Coast-Sardinia","8-Coast-Sardinia",class)
+class = sub("Inland-Sardinia","9-Inland-Sardinia ",class)
+df = data.frame(class, oliveoils[,-1])
+
+```
+
+
+<table width="500" border="0" cellpadding="0">
+
+<tr>
+<td align="center" valign="center">
+```{r}
+modradviz2d(x = df[,-1], cl = df$class, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = oil.palette, opt.axis.order = F)
+```
+<br />
+RadViz2D
+</td>
+</tr>
+
+<tr>
+
+<td align="center" valign="center">
+```{r}
+res1 = viz2d_3d(df[,-1])
+res1 = data.frame(res1, as.factor(df$class))
+colnames(res1) = c("x","y","z","class")
+# open 3d window
+# resize window
+par3d(windowRect = c(100, 100, 612, 612))
+# plot
+with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
+                  col = oil.palette[1:nlevels(class)][as.numeric(class)]))
+box3d()
+# add legend
+# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
+#          pch = 16, col = df.palette[1:nlevels(res1$class)],
+#          cex=1, inset=c(0.05))
+rglwidget()
+
+```
+<br />
+Viz3D
+</td>
+
+<td align="center" valign="center">
+```{r}
+radialvis3d(data = df[,-1], cl = factor(df$class), domrp = F, doGtrans = F, lwd = 2, alpha = 0.35, pradius = 0.02, color = oil.palette, class.labels = NULL)
+# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
+# rgl::par3d(viewport = c(0,0,1200, 1200))
+rgl::rgl.viewpoint(zoom = 0.6)
+rgl::rglwidget()
+```
+<br />
+RadViz3D
+</td>
+</tr>
+</table>
+
+## Fig. S7: Bulls Dataset
+```{r}
+bulls = read.table(file = "bulls.dat",header=F, 
+                   col.names = c("Breed", "SalePr", "YrHgt", "FtFrBody", "PrctFFB", 
+                                          "Frame", "BkFat", "SaleHt", "SaleWt")) 
+df = bulls[,-6]
+```
+
+
+<table width="500" border="0" cellpadding="0">
+
+<tr>
+<td align="center" valign="center">
+```{r}
+modradviz2d(x = df[,-1], cl = df$Breed, modify = F, 
+            coord.labels = colnames(df[,-1]), class.labels = NULL,
+            palette = df.palette, opt.axis.order = F)
+```
+<br />
+RadViz2D
+</td>
+</tr>
+
+<tr>
+
+<td align="center" valign="center">
+```{r}
+res1 = viz2d_3d(df[,-1])
+res1 = data.frame(res1, as.factor(df$Breed))
+colnames(res1) = c("x","y","z","class")
+# open 3d window
+# resize window
+par3d(windowRect = c(100, 100, 612, 612))
+# plot
+with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
+                  col = df.palette[1:nlevels(class)][as.numeric(class)]))
+box3d()
+# add legend
+# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
+#          pch = 16, col = df.palette[1:nlevels(res1$class)],
+#          cex=1, inset=c(0.05))
+rglwidget()
+
+```
+<br />
+Viz3D
+</td>
+
+<td align="center" valign="center">
+```{r}
+radialvis3d(data = df[,-1], cl = factor(df$Breed), domrp = F, doGtrans = F, lwd = 2, alpha = 0.35, pradius = 0.02, color = df.palette, class.labels = NULL)
+# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
+# rgl::par3d(viewport = c(0,0,1200, 1200))
+rgl::rgl.viewpoint(zoom = 0.6)
+rgl::rglwidget()
+```
+<br />
+RadViz3D
+</td>
+</tr>
+</table>
+
+
+
+
+
+
+
+
+
