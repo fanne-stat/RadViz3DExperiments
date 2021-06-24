@@ -51,7 +51,7 @@ viz3d <- function(x, angles =  2*pi*(0:(ncol(x)-1))/ncol(x)) {
 <tr>
 <td align="center" valign="center">
 ```{r}
-load("sim_data.rda")
+load("sim_data_4.rda")
 sim.palette <- c("#1F78B4","#6A3D9A", "#33A02C","#E31A1C", "yellow")
 
 df <- sim_data[[1]]
