@@ -509,10 +509,12 @@ Pi <- rep(0, K)
 Mu <- array(dim = c(K, p))
 S <- array(dim = c(p, p, K))
 level <- levels(df$class)
+order <- c(8,9,5:7,1:4)
 for (i in 1:nlevels(df$class)){
-  Pi[i] <- sum(df$class == level[i])/N
-  S[,,i] <- cov(df[,-1][df$class == level[i],])
-  Mu[i,] <- colMeans(df[,-1][df$class == level[i],])
+  j <- order[i]
+  Pi[i] <- sum(df$class == level[j])/N
+  S[,,i] <- cov(df[,-1][df$class == level[j],])
+  Mu[i,] <- colMeans(df[,-1][df$class == level[j],])
 }
 
 
@@ -520,9 +522,9 @@ overlap_res<- overlap(Pi = Pi, Mu = Mu, S = S)
 
 overlap_map_sym <- t(overlap_res$OmegaMap) + overlap_res$OmegaMap - diag(K)
 
-overlap.map(overlap_map_sym*1000, lab.col = oil.palette[1:K], 
-            scale = expression(""%*%10^-3~""), map.cex = 2.75, lab.cex = 4, 
-            font = 2, legend.cex = 1.5, scale.pos = 1.5, legend.width = 2)
+overlap.map(overlap_map_sym*1000, lab.col = oil.palette[order], 
+            scale = expression(""%*%10^-3~""), map.cex = 2.55, lab.cex = 4, 
+            font = 2, legend.cex = 2.1, scale.pos = 1.5, legend.width = 0.05)
 ```
 <br />
 Overlap Map
