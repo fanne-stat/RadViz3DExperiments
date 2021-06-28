@@ -48,8 +48,6 @@ viz3d <- function(x, angles =  2*pi*(0:(ncol(x)-1))/ncol(x)) {
 # color palette
 wine.palette = brewer.pal(8,"Dark2")[c(1,2,3)]
 cb.palette = c("#A6CEE3", "#1F78B4", "#FDBF6F", "#FF7F00") 
-df.palette = c("#1B9E77", "#A6CEE3", "#E7298A", "#E6AB02", "#7570B3", "#D95F02", "#66A61E","#A6761D", "#666666")
-yt.palette = c(df.palette,"blue")
 oil.palette = c(brewer.pal(8,"Dark2"), "cyan")
 
 ```
@@ -148,10 +146,11 @@ omegas <- c(0.001, 0.01, 0.05)
 sim_data <- NULL
 overlap_mat_sim <- NULL
 
-set.seed(456)
+seed = c(456, 1234, 3456)
 for (i in 1:length(omegas)){
+  set.seed(seed[i])
   p = 5
-  Q <- MixGOM(goMega = omegas[i], K = 5, p = p, sph = T, hom = T)
+  Q <- MixGOM(goMega = omegas[i], K = 5, p = p, sph = F, hom = F)
   overlap_mat_sim[[i]] <- overlap(Q$Pi, Q$Mu, Q$S)$OmegaMap
   print(t(overlap(Q$Pi, Q$Mu, Q$S)$OmegaMap) + overlap(Q$Pi, Q$Mu, Q$S)$OmegaMap - diag(5))
   A <- simdataset(n = 500, Pi = Q$Pi, Mu = Q$Mu, S = Q$S)
@@ -162,7 +161,7 @@ for (i in 1:length(omegas)){
   sim_data[[i]] <- sn.df
 }
 
-save(overlap_mat_sim, sim_data, file = "sim_data__hs_5.rda")
+save(overlap_mat_sim, sim_data, file = "sim_data_5.rda")
 ```
 
 
@@ -270,10 +269,6 @@ par3d(windowRect = c(100, 100, 612, 612))
 with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.95,
                   col = wine.palette[1:nlevels(class)][as.numeric(class)]))
 box3d()
-# add legend
-# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
-#          pch = 16, col = df.palette[1:nlevels(res1$class)],
-#          cex=1, inset=c(0.05))
 rglwidget()
 
 ```
@@ -359,10 +354,6 @@ par3d(windowRect = c(100, 100, 612, 612))
 with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
                   col = cb.palette[1:nlevels(class)][as.numeric(class)]))
 box3d()
-# add legend
-# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
-#          pch = 16, col = df.palette[1:nlevels(res1$class)],
-#          cex=1, inset=c(0.05))
 rglwidget()
 
 ```
@@ -373,8 +364,6 @@ Viz3D
 <td align="center" valign="center">
 ```{r}
 radialvis3d(data = df[,-6], cl = factor(df$group), domrp = F, doGtrans = F, lwd = 2, alpha = 0.325, pradius = 0.02, color = cb.palette, class.labels = NULL)
-# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
-# rgl::par3d(viewport = c(0,0,1200, 1200))
 rgl::rgl.viewpoint(zoom = 0.6)
 rgl::rglwidget()
 ```
@@ -450,10 +439,6 @@ par3d(windowRect = c(100, 100, 612, 612))
 with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
                   col = cb.palette[1:nlevels(class)][as.numeric(class)]))
 box3d()
-# add legend
-# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
-#          pch = 16, col = df.palette[1:nlevels(res1$class)],
-#          cex=1, inset=c(0.05))
 rglwidget()
 
 ```
@@ -464,8 +449,6 @@ Viz3D
 <td align="center" valign="center">
 ```{r}
 radialvis3d(data = df[,-5], cl = factor(df$group), domrp = F, doGtrans = F, lwd = 2, alpha = 0.325, pradius = 0.02, color = cb.palette, class.labels = NULL)
-# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
-# rgl::par3d(viewport = c(0,0,1200, 1200))
 rgl::rgl.viewpoint(zoom = 0.6)
 rgl::rglwidget()
 ```
@@ -555,10 +538,6 @@ par3d(windowRect = c(100, 100, 612, 612))
 with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
                   col = oil.palette[1:nlevels(class)][as.numeric(class)]))
 box3d()
-# add legend
-# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
-#          pch = 16, col = df.palette[1:nlevels(res1$class)],
-#          cex=1, inset=c(0.05))
 rglwidget()
 
 ```
@@ -568,10 +547,8 @@ Viz3D
 
 <td align="center" valign="center">
 ```{r}
-radialvis3d(data = df[,-1], cl = factor(df$class), domrp = F, doGtrans = F, lwd = 2, alpha = 0.325, pradius = 0.02, color = oil.palette, coord.cex = 1.5,
+radialvis3d(data = df[,-1], cl = factor(df$class), domrp = F, doGtrans = F, lwd = 2, alpha = 0.325, pradius = 0.02, color = oil.palette, coord.cex = 1.15,
             class.labels = NULL)
-# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
-# rgl::par3d(viewport = c(0,0,1200, 1200))
 rgl::rgl.viewpoint(zoom = 0.6)
 rgl::rglwidget()
 ```
@@ -669,10 +646,6 @@ par3d(windowRect = c(100, 100, 612, 612))
 with(res1, plot3d(xlab = "", ylab="", zlab="",axes = F, x,y,z, type="s",size = 0.75,
                   col = wine.palette[1:nlevels(class)][as.numeric(class)]))
 box3d()
-# add legend
-# legend3d("topright", legend = paste('Group',1:nlevels(res1$class)),
-#          pch = 16, col = df.palette[1:nlevels(res1$class)],
-#          cex=1, inset=c(0.05))
 rglwidget()
 
 ```
@@ -684,8 +657,6 @@ Viz3D
 ```{r}
 radialvis3d(data = df[,-1], cl = factor(df$class), domrp = F, doGtrans = F, lwd = 2, alpha = 0.325, pradius = 0.025, color = wine.palette, coord.cex = 1.5,
             class.labels = NULL)
-# rgl::par3d(windowRect = c(0, 0, 1200, 1200))
-# rgl::par3d(viewport = c(0,0,1200, 1200))
 rgl::rgl.viewpoint(zoom = 0.6)
 rgl::rglwidget()
 ```

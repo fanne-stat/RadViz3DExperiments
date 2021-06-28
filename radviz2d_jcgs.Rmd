@@ -27,24 +27,6 @@ library(rgl)
 
 source("modradviz2d-2.R")
 
-viz2d_3d <- function(x, angles =  2*pi*(0:(ncol(x)-1))/ncol(x)) {
-  y <- apply(X = x, MARGIN = 2, FUN = function(z)((z - min(z))/(max(z) - min(z))))
-  sy <- rowSums(y)/ncol(y)
-  y <- apply(X = y, MARGIN = 1, FUN = function(z)(z/sum(z)))
-  y <- t(y)
-  pr <- cbind(cos(angles), sin(angles))
-  xproj <- cbind(y %*% pr, sy)
-}
-
-# {viz3d} function based on Artero and Oliveira's paper.
-viz3d <- function(x, angles =  2*pi*(0:(ncol(x)-1))/ncol(x)) {
-  y <- apply(X = x, MARGIN = 2, FUN = function(z)((z - min(z))/(max(z) - min(z))))
-  #    x <- apply(X = y, MARGIN = 1, FUN = function(z)(z/sum(z)))
-  #    x <- t(x)
-  pr <- cbind(cos(angles), sin(angles), 1)
-  xproj <- y %*% pr / ncol(y)
-}
-
 ```
 
 ```{r}
@@ -144,7 +126,7 @@ df <- sim_data[[1]]
 overlap.map((2*overlap_mat_sim[[1]] - diag(5))*1000, lab.col = sim_pal, scale = expression("("%*%10^-3~")"), map.cex = 2.75, lab.cex = 4, legend.cex = 1.5, font = 2, scale.pos = 0.35, legend.width = 0.1)
 ```
 <br />
-(i) Overlap Map, $p = 5, \omega = 0.001$ 
+(i) Overlap Map, $p = 5, \ddot\omega = 0.001$ 
 </td>
 
 <td align="center" valign="center">
@@ -155,7 +137,7 @@ modradviz2d(x = df[,-1], cl = df$class, modify = F,
             palette = sim.palette, opt.axis.order = F)
 ```
 <br />
-(iv) RadViz2D, $p = 5, \omega = 0.001$ 
+(iv) RadViz2D, $p = 5, \ddot\omega = 0.001$ 
 </td>
 
 </tr>
@@ -167,7 +149,7 @@ df <- sim_data[[2]]
 overlap.map((2*overlap_mat_sim[[2]] - diag(5))*100, lab.col = sim_pal, scale = expression("("%*%10^-2~")"), map.cex = 2.75, lab.cex = 4, legend.cex = 1.5, font = 2, scale.pos = 0.35, legend.width = 0.1)
 ```
 <br />
-(i) Overlap Map, $p = 5, \omega = 0.01$ 
+(i) Overlap Map, $p = 5, \ddot\omega = 0.01$ 
 </td>
 
 <td align="center" valign="center">
@@ -178,7 +160,7 @@ modradviz2d(x = df[,-1], cl = df$class, modify = F,
             palette = sim.palette, opt.axis.order = F)
 ```
 <br />
-(iv) RadViz2D, $p = 5, \omega = 0.01$ 
+(iv) RadViz2D, $p = 5, \ddot\omega = 0.01$ 
 </td>
 
 </tr>
@@ -190,7 +172,7 @@ df <- sim_data[[3]]
 overlap.map((2*overlap_mat_sim[[3]] - diag(5))*100, lab.col = sim_pal, scale = expression("("%*%10^-2~")"), map.cex = 2.75, lab.cex = 4, legend.cex = 1.5, font = 2, scale.pos = 0.35, legend.width = 0.1)
 ```
 <br />
-(i) Overlap Map, $p = 5, \omega = 0.05$
+(i) Overlap Map, $p = 5, \ddot\omega = 0.05$
 </td>
 
 <td align="center" valign="center">
@@ -201,7 +183,7 @@ modradviz2d(x = df[,-1], cl = df$class, modify = F,
             palette = sim.palette, opt.axis.order = F)
 ```
 <br />
-(v) RadViz2D, $p = 5, \omega = 0.05$ 
+(v) RadViz2D, $p = 5, \ddot\omega = 0.05$ 
 </td>
 
 </tr>
